@@ -191,7 +191,7 @@ namespace NetworkClient
 			{
 				_requestUrl = url;
 				_request = (HttpWebRequest) WebRequest.Create(url);
-				_request.UserAgent = "xternalx downloader/0.1a";
+				_request.UserAgent = "Common downloader/0.1";
 				_request.Timeout = _timeout;
 				_request.Method = _method;
 				if (_request.Method.ToLower().Equals("post"))

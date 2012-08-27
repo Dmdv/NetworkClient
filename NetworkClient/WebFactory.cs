@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace NetworkClient
 {
-	public class WebFactory
+	internal sealed class WebFactory
 	{
 		private const int Timeout = 15000;
 

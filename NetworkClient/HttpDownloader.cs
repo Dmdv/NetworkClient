@@ -7,28 +7,27 @@ namespace NetworkClient
 	public sealed class HttpDownloader
 	{
 		public delegate void DownloadProgressEventHandler(object sender, DownloadProgressArgs e);
-		public event DownloadProgressEventHandler DownloadProgress;
 
 		private const int BufferSize = 4096;
-		// private int _timeout = 15000;
-
-		private DownloadMode _downloadMode;
-		private readonly HttpWebResponse _response;
-		private HttpWebRequest _request;
-
 		private readonly bool _connectionEstablished;
+
+		private readonly DownloadMode _downloadMode;
+		private readonly HttpWebResponse _response;
+
+		private readonly long _rangeFrom;
 		private long _bytesRead;
 		private long _bytesWritten;
 		private bool _cancellationPending;
-		// private string _method;
-		//private long _rangeFrom;
-		//private long _rangeTo;
-		// private string _requestUrl;
+
+		public event DownloadProgressEventHandler DownloadProgress;
 
 		public HttpDownloader(string url)
 		{
+			WebFactory = new WebFactory();
 			_response = WebFactory.GetHttpResponse(url);
 			_connectionEstablished = IsResponseValid(_response);
+			_rangeFrom = WebFactory.Options.RangeFrom;
+			_downloadMode = WebFactory.Options.DownloadMode;
 		}
 
 		public HttpDownloader(string url, HttpDownloaderOptions options)
@@ -36,6 +35,8 @@ namespace NetworkClient
 			Options = options;
 			_response = WebFactory.GetHttpResponse(url, options);
 			_connectionEstablished = IsResponseValid(_response);
+			_rangeFrom = WebFactory.Options.RangeFrom;
+			_downloadMode = WebFactory.Options.DownloadMode;
 		}
 
 		public HttpDownloaderOptions Options { get; private set; }
@@ -55,9 +56,14 @@ namespace NetworkClient
 			get { return _response.ContentType; }
 		}
 
+		private WebFactory WebFactory { get; set; }
+
 		public long DownloadToFile(string destinationFile)
 		{
-			if (!_connectionEstablished) { throw new NotConnectedException(); }
+			if (!_connectionEstablished)
+			{
+				throw new NotConnectedException();
+			}
 
 			FileStream stream = null;
 			switch (_downloadMode)
@@ -95,8 +101,9 @@ namespace NetworkClient
 				throw new NotConnectedException();
 			}
 
-			using (var stream = (MemoryStream) DownloadToStream())
+			using (var stream = DownloadToStream() as MemoryStream)
 			{
+				if (stream == null) return null;
 				stream.Position = 0L;
 				using (var reader = new StreamReader(stream))
 				{
@@ -127,14 +134,13 @@ namespace NetworkClient
 
 			Stream stream = new MemoryStream();
 			stream.Position = 0L;
-			ReadToStream(stream);
-			return stream;
+			return ReadToStream(stream) ? stream : null;
 		}
 
 		private bool ReadToStream(Stream stream)
 		{
-			var e = new DownloadProgressArgs { Size = Length };
-			
+			var e = new DownloadProgressArgs {Size = Length};
+
 			var buffer = new byte[BufferSize];
 			using (var responseStream = _response.GetResponseStream())
 			{
@@ -150,10 +156,9 @@ namespace NetworkClient
 					_bytesWritten += _bytesRead;
 					e.BytesRead = _bytesRead;
 					e.BytesWritten = _bytesWritten;
-					e.PercentComplete = (_bytesWritten / (float) Length - _rangeFrom) * 100f;
+					e.PercentComplete = (_bytesWritten/(float) Length - _rangeFrom)*100f;
 					OnDownloadProgress(e);
-				} 
-				while (_bytesRead > 0L);
+				} while (_bytesRead > 0L);
 			}
 			return true;
 		}

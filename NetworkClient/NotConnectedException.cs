@@ -8,11 +8,13 @@ namespace NetworkClient
 		{
 		}
 
-		public NotConnectedException(string message) : base(message)
+		public NotConnectedException(string message) 
+			: base(message)
 		{
 		}
 
-		public NotConnectedException(string message, Exception inner) : base(message, inner)
+		public NotConnectedException(string message, Exception inner) 
+			: base(message, inner)
 		{
 		}
 	}

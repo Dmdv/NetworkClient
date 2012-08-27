@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetworkClient;
 
 namespace UnitTests
 {
@@ -12,13 +14,37 @@ namespace UnitTests
 	[TestClass]
 	public class UnitTests
 	{
+		const string Uri = @"http://www.gradsch.ohio-state.edu/Depo/ETD_Tutorial/lesson2.pdf";
+
 		[TestMethod]
-		public void TestMethod()
+		public void TestDownloadString()
 		{
 			var webRequest = WebRequest.Create("http://www.yandex.ru");
 			webRequest.Method = "GET";
 			webRequest.BeginGetResponse(OnRequestCompleted, webRequest);
 			Thread.Sleep(1200000);
+		}
+
+		[TestMethod]
+		public void TestDownloadFile()
+		{
+			var downloader = new HttpDownloader(Uri);
+			downloader.DownloadProgress += DownloaderProgress;
+			var tempFileName = Path.GetTempFileName();
+			downloader.DownloadToFile(tempFileName);
+			Assert.IsTrue(File.Exists(tempFileName));
+			try
+			{
+				File.Delete(tempFileName);
+			}
+			catch
+			{
+			}
+		}
+
+		private void DownloaderProgress(object sender, DownloadProgressArgs e)
+		{
+			Trace.WriteLine(e.PercentComplete);
 		}
 
 		private void OnRequestCompleted(IAsyncResult ar)
@@ -27,11 +53,12 @@ namespace UnitTests
 			var response = request.EndGetResponse(ar);
 
 			var responseStream = response.GetResponseStream();
-			if (responseStream != null)
-				using (var stream = new StreamReader(responseStream))
-				{
-					var readToEnd = stream.ReadToEnd();
-				}
+			if (responseStream == null) return;
+			using (var stream = new StreamReader(responseStream))
+			{
+				var readToEnd = stream.ReadToEnd();
+				Assert.IsTrue(!string.IsNullOrEmpty(readToEnd));
+			}
 		}
 	}
 }

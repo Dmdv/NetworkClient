@@ -2,19 +2,18 @@ namespace NetworkClient
 {
 	public class HttpDownloaderOptions
 	{
-		public string Method = "GET";
-		public long RangeFrom;
-		public long RangeTo;
-		public int Timeout = 0x7530;
-		public string Url;
+		public readonly string Method = "GET";
+		public readonly long RangeFrom;
+		public readonly long RangeTo;
+		public readonly int Timeout = 30000;
 
-		public HttpDownloaderOptions(string method, string url, long? rangeFrom, long? rangeTo, int? timeout)
+		public HttpDownloaderOptions(string method, long? rangeFrom, long? rangeTo, int? timeout)
 		{
 			if (method != null)
 			{
 				Method = method;
 			}
-			Url = url;
+
 			if (rangeFrom.HasValue)
 			{
 				RangeFrom = rangeFrom.Value;
@@ -28,5 +27,7 @@ namespace NetworkClient
 				Timeout = timeout.Value;
 			}
 		}
+
+		public DownloadMode DownloadMode { get; set; }
 	}
 }

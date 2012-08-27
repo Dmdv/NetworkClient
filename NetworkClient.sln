@@ -8,9 +8,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A130B1FE-E676-4F31-AAF5-C873F7B6C17D}"
 	ProjectSection(SolutionItems) = preProject
 		Local.testsettings = Local.testsettings
-		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 		NetworkClient.vsmdi = NetworkClient.vsmdi
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuiDownloader", "GuiDownloader\GuiDownloader.csproj", "{E792A266-6536-4464-97B1-DF0384B969DA}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
@@ -45,6 +47,16 @@ Global
 		{FB8A80CB-7F21-44D9-89A8-C848F370C997}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{FB8A80CB-7F21-44D9-89A8-C848F370C997}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{FB8A80CB-7F21-44D9-89A8-C848F370C997}.Release|x86.ActiveCfg = Release|Any CPU
+		{E792A266-6536-4464-97B1-DF0384B969DA}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{E792A266-6536-4464-97B1-DF0384B969DA}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{E792A266-6536-4464-97B1-DF0384B969DA}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{E792A266-6536-4464-97B1-DF0384B969DA}.Debug|x86.ActiveCfg = Debug|x86
+		{E792A266-6536-4464-97B1-DF0384B969DA}.Debug|x86.Build.0 = Debug|x86
+		{E792A266-6536-4464-97B1-DF0384B969DA}.Release|Any CPU.ActiveCfg = Release|x86
+		{E792A266-6536-4464-97B1-DF0384B969DA}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{E792A266-6536-4464-97B1-DF0384B969DA}.Release|Mixed Platforms.Build.0 = Release|x86
+		{E792A266-6536-4464-97B1-DF0384B969DA}.Release|x86.ActiveCfg = Release|x86
+		{E792A266-6536-4464-97B1-DF0384B969DA}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

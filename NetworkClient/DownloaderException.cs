@@ -2,7 +2,7 @@ using System;
 
 namespace NetworkClient
 {
-	internal class DownloaderException : Exception
+	public class DownloaderException : Exception
 	{
 		public DownloaderException()
 		{

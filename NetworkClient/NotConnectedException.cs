@@ -2,7 +2,7 @@ using System;
 
 namespace NetworkClient
 {
-	internal class NotConnectedException : Exception
+	public class NotConnectedException : Exception
 	{
 		public NotConnectedException()
 		{

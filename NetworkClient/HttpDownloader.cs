@@ -165,7 +165,9 @@ namespace NetworkClient
 
 		private static bool IsResponseValid(HttpWebResponse response)
 		{
-			return response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.PartialContent;
+			return 
+				response.StatusCode == HttpStatusCode.OK || 
+				response.StatusCode == HttpStatusCode.PartialContent;
 		}
 	}
 }

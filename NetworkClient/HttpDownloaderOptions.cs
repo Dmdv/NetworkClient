@@ -2,32 +2,31 @@ namespace NetworkClient
 {
 	public class HttpDownloaderOptions
 	{
-		public readonly string Method = "GET";
-		public readonly long RangeFrom;
-		public readonly long RangeTo;
-		public readonly int Timeout = 30000;
+		private const string DefaultMethod = "GET";
+		private const int DefaultTimeout = 30000;
 
-		public HttpDownloaderOptions(string method, long? rangeFrom, long? rangeTo, int? timeout)
+		public HttpDownloaderOptions(string method = DefaultMethod,
+		                             int timeout = DefaultTimeout,
+		                             long rangeFrom = 0L,
+		                             long rangeTo = 0L,
+		                             string proxyUri = null,
+		                             int proxyPort = 0)
 		{
-			if (method != null)
-			{
-				Method = method;
-			}
-
-			if (rangeFrom.HasValue)
-			{
-				RangeFrom = rangeFrom.Value;
-			}
-			if (rangeTo.HasValue)
-			{
-				RangeTo = rangeTo.Value;
-			}
-			if (timeout.HasValue)
-			{
-				Timeout = timeout.Value;
-			}
+			Method = method;
+			Timeout = timeout;
+			RangeFrom = rangeFrom;
+			RangeTo = rangeTo;
+			ProxyUri = proxyUri;
+			ProxyPort = proxyPort;
 		}
 
+		public string Method { get; private set; }
+		public long RangeTo { get; private set; }
+		public long RangeFrom { get; private set; }
+		public int Timeout { get; private set; }
+
+		public string ProxyUri { get; set; }
+		public int ProxyPort { get; set; }
 		public DownloadMode DownloadMode { get; set; }
 	}
 }

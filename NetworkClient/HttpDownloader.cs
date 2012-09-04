@@ -7,39 +7,35 @@ namespace NetworkClient
 	public sealed class HttpDownloader
 	{
 		public delegate void DownloadProgressEventHandler(object sender, DownloadProgressArgs e);
+		public event DownloadProgressEventHandler DownloadProgress;
 
 		private const int BufferSize = 4096;
-		private readonly bool _connectionEstablished;
 
-		private readonly DownloadMode _downloadMode;
-		private readonly HttpWebResponse _response;
-
-		private readonly long _rangeFrom;
+		private HttpWebResponse _response;
 		private long _bytesRead;
 		private long _bytesWritten;
 		private bool _cancellationPending;
+		private bool _connectionEstablished;
 
-		public event DownloadProgressEventHandler DownloadProgress;
+		private DownloadMode _downloadMode;
+		private long _rangeFrom;
 
 		public HttpDownloader(string url)
 		{
 			WebFactory = new WebFactory();
-			_response = WebFactory.GetHttpResponse(url);
-			_connectionEstablished = IsResponseValid(_response);
-			_rangeFrom = WebFactory.Options.RangeFrom;
-			_downloadMode = WebFactory.Options.DownloadMode;
+			InitCreateResponse(url);
 		}
 
 		public HttpDownloader(string url, HttpDownloaderOptions options)
 		{
-			Options = options;
-			_response = WebFactory.GetHttpResponse(url, options);
-			_connectionEstablished = IsResponseValid(_response);
-			_rangeFrom = WebFactory.Options.RangeFrom;
-			_downloadMode = WebFactory.Options.DownloadMode;
+			WebFactory = new WebFactory {Options = options};
+			InitCreateResponse(url);
 		}
 
-		public HttpDownloaderOptions Options { get; private set; }
+		public HttpDownloaderOptions Options
+		{
+			get { return WebFactory.Options; }
+		}
 
 		public string Encoding
 		{
@@ -56,8 +52,6 @@ namespace NetworkClient
 			get { return _response.ContentType; }
 		}
 
-		private WebFactory WebFactory { get; set; }
-
 		public long DownloadToFile(string destinationFile)
 		{
 			if (!_connectionEstablished)
@@ -69,7 +63,8 @@ namespace NetworkClient
 			switch (_downloadMode)
 			{
 				case DownloadMode.Download:
-					new FileStream(destinationFile, FileMode.Create, FileAccess.Write, FileShare.Read).Seek(0L, SeekOrigin.Begin);
+					new FileStream(destinationFile, FileMode.Create, FileAccess.Write, FileShare.Read)
+						.Seek(0L, SeekOrigin.Begin);
 					break;
 
 				case DownloadMode.Append:
@@ -117,6 +112,16 @@ namespace NetworkClient
 			_cancellationPending = true;
 		}
 
+		private WebFactory WebFactory { get; set; }
+
+		private void InitCreateResponse(string url)
+		{
+			_response = WebFactory.GetHttpResponse(url);
+			_connectionEstablished = IsResponseValid(_response);
+			_rangeFrom = Options.RangeFrom;
+			_downloadMode = Options.DownloadMode;
+		}
+
 		private void OnDownloadProgress(DownloadProgressArgs e)
 		{
 			if (DownloadProgress != null)
@@ -142,7 +147,7 @@ namespace NetworkClient
 			var e = new DownloadProgressArgs {Size = Length};
 
 			var buffer = new byte[BufferSize];
-			using (var responseStream = _response.GetResponseStream())
+			using (Stream responseStream = _response.GetResponseStream())
 			{
 				if (responseStream == null) return false;
 
@@ -156,17 +161,18 @@ namespace NetworkClient
 					_bytesWritten += _bytesRead;
 					e.BytesRead = _bytesRead;
 					e.BytesWritten = _bytesWritten;
-					e.PercentComplete = (_bytesWritten/(float) Length - _rangeFrom)*100f;
+					e.PercentComplete = (_bytesWritten / (float) Length - _rangeFrom) * 100f;
 					OnDownloadProgress(e);
-				} while (_bytesRead > 0L);
+				}
+				while (_bytesRead > 0L);
 			}
 			return true;
 		}
 
 		private static bool IsResponseValid(HttpWebResponse response)
 		{
-			return 
-				response.StatusCode == HttpStatusCode.OK || 
+			return
+				response.StatusCode == HttpStatusCode.OK ||
 				response.StatusCode == HttpStatusCode.PartialContent;
 		}
 	}

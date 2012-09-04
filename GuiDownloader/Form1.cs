@@ -49,7 +49,14 @@ namespace GuiDownloader
 		private void DownloadSingleFile(object sender, EventArgs e)
 		{
 			progressBar1.Value = 0;
-			_downloader.StartDownload(textBox1.Text);
+			try
+			{
+				_downloader.StartDownload(textBox1.Text);
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.Message);
+			}
 		}
 
 		// Для примера просто предположим, что у нас 4 textbox и 4 progressbar,

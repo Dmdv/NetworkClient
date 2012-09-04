@@ -11,10 +11,10 @@ namespace NetworkClient
 
 		public WebFactory()
 		{
-			Options = new HttpDownloaderOptions("GET", 0L, 0L, Timeout);
+			Options = new HttpDownloaderOptions("GET", Timeout);
 		}
 
-		public HttpDownloaderOptions Options { get; private set; }
+		public HttpDownloaderOptions Options { get; set; }
 
 		public HttpWebResponse GetHttpResponse(string url)
 		{
@@ -24,14 +24,12 @@ namespace NetworkClient
 			}
 			catch (Exception ex)
 			{
-				throw new DownloaderException("Downloader unknown exception", ex);
+				throw new DownloaderException("Downloader exception", ex);
 			}
 		}
 
-		public HttpWebResponse GetHttpResponse(string url, HttpDownloaderOptions options)
+		private HttpWebResponse GetHttpResponse(string url, HttpDownloaderOptions options)
 		{
-			Options = options;
-
 			var request = CreateRequestInternal(url);
 
 			if (options.RangeFrom != 0L && options.RangeTo != 0L)
@@ -48,9 +46,15 @@ namespace NetworkClient
 			return GetResponseInternal(request);
 		}
 
-		private static HttpWebRequest CreateRequestInternal(string url)
+		private HttpWebRequest CreateRequestInternal(string url)
 		{
 			var request = (HttpWebRequest) WebRequest.Create(url);
+
+			if (!string.IsNullOrEmpty(Options.ProxyUri) && Options.ProxyPort != 0)
+			{
+				request.Proxy = new WebProxy(Options.ProxyUri, Options.ProxyPort);
+			}
+
 			request.UserAgent = "Common downloader/1.0";
 			request.Timeout = Timeout;
 			request.Method = "GET";
@@ -71,7 +75,7 @@ namespace NetworkClient
 			return request;
 		}
 
-		private static HttpWebResponse GetResponseInternal(HttpWebRequest request)
+		private HttpWebResponse GetResponseInternal(WebRequest request)
 		{
 			try
 			{
@@ -92,6 +96,5 @@ namespace NetworkClient
 		{
 			return new Regex(@"(\?(?<params>[^\?]*))").Match(url).Groups["params"].Value;
 		}
-
 	}
 }

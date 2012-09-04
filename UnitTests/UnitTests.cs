@@ -17,6 +17,19 @@ namespace UnitTests
 		const string Uri = @"http://www.gradsch.ohio-state.edu/Depo/ETD_Tutorial/lesson2.pdf";
 
 		[TestMethod]
+		public void TestDownloadToString()
+		{
+			const string Target =
+				@"http://maps.googleapis.com/maps/api/geocode/xml?address=" + 
+				@"1600+Amphitheatre+Parkway,+Mountain+View,+CA&sensor=false";
+
+			var client = new HttpDownloader(Target);
+			var str = client.DownloadToString();
+			Assert.IsTrue(str.Length == 1756);
+			Assert.IsTrue(str.Contains("1600 Amphitheatre Pkwy, Mountain View, CA 94043, USA"));
+		}
+
+		[TestMethod]
 		public void TestDownloadString()
 		{
 			var webRequest = WebRequest.Create("http://www.yandex.ru");
